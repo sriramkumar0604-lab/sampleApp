@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/gititc778/sampleApp.git', branch: 'master'
+                git url: 'https://github.com/sriramkumar0604-lab/sampleApp', branch: 'master'
             }
         }
 
@@ -16,7 +16,7 @@ pipeline {
 
         stage('Push to Docker Registry') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-login-itc', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
                         docker tag sampleapp:v10.5 ${DOCKER_USER}/sampleapp:v10.6
@@ -29,7 +29,7 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
-                    export KUBECONFIG=/home/danish/kubeconfig/config.yaml
+                    export KUBECONFIG=/home/sriram/.kube/config
 
                     kubectl get ns
                     kubectl apply -f deployment.yaml -n devops
