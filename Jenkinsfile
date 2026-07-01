@@ -38,7 +38,7 @@ pipeline {
                         export DOTNET_ROOT=/snap/dotnet-sdk/current
                         export PATH=$PATH:/home/sriram/.dotnet/tools
 
-                        dotnet sonarscanner begin /k:"sampleapp"
+                        dotnet sonarscanner begin /k:"sampleApp"
 
                         dotnet build -c Release
 
