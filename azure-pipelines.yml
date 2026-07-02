@@ -19,7 +19,7 @@ trigger:
 # Similar to a Jenkins Build Agent.
 # ----------------------------------------------------------
 pool:
-  vmImage: ubuntu-latest
+  name: Default
 
 # ==========================================================
 # PIPELINE STARTS HERE
