@@ -1,0 +1,177 @@
+# ==========================================================
+# Azure DevOps Pipeline
+# File Name: azure-pipelines.yml
+# ==========================================================
+
+# ----------------------------------------------------------
+# Trigger
+# Automatically run this pipeline whenever code is pushed
+# to the "main" branch.
+# ----------------------------------------------------------
+trigger:
+- main
+
+# ----------------------------------------------------------
+# Agent Pool
+# Azure DevOps provides a temporary Ubuntu VM to run
+# this pipeline.
+#
+# Similar to a Jenkins Build Agent.
+# ----------------------------------------------------------
+pool:
+  vmImage: ubuntu-latest
+
+# ==========================================================
+# PIPELINE STARTS HERE
+# ==========================================================
+
+stages:
+
+# ==========================================================
+# STAGE 1 - BUILD
+# This stage is responsible for building the application.
+# ==========================================================
+- stage: Build
+
+  # Friendly name shown in Azure DevOps UI
+  displayName: Build Application
+
+  jobs:
+
+  # --------------------------------------------------------
+  # JOB 1 - COMPILE SOURCE CODE
+  #
+  # A Job runs on ONE build agent.
+  # Multiple jobs can run in parallel.
+  # --------------------------------------------------------
+  - job: Compile
+
+    displayName: Compile Source Code
+
+    steps:
+
+    # -----------------------------------------
+    # Checkout Source Code
+    #
+    # "self" means:
+    # Clone the repository that contains
+    # this pipeline.
+    #
+    # Similar to:
+    # git clone https://github.com/...
+    # -----------------------------------------
+    - checkout: self
+
+    # -----------------------------------------
+    # Execute a shell script
+    # "|" means multiple lines can be written.
+    # -----------------------------------------
+    - script: |
+        echo "Compiling application..."
+        echo "dotnet build"
+      displayName: Compile Application
+
+  # --------------------------------------------------------
+  # JOB 2 - BUILD DOCKER IMAGE
+  #
+  # In a real project this would execute:
+  # docker build -t sampleapp:v1 .
+  # --------------------------------------------------------
+  - job: DockerBuild
+
+    displayName: Build Docker Image
+
+    steps:
+
+    - checkout: self
+
+    - script: |
+        echo "Building Docker Image..."
+        echo "docker build -t sampleapp:v1 ."
+      displayName: Docker Build
+
+# ==========================================================
+# STAGE 2 - TEST
+#
+# This stage starts ONLY AFTER Build succeeds.
+# ==========================================================
+- stage: Test
+
+  displayName: Test Application
+
+  # Stage dependency
+  dependsOn: Build
+
+  jobs:
+
+  # --------------------------------------------------------
+  # JOB 1 - UNIT TESTS
+  # --------------------------------------------------------
+  - job: UnitTests
+
+    displayName: Execute Unit Tests
+
+    steps:
+
+    - script: |
+        echo "Running Unit Tests..."
+      displayName: Unit Test
+
+  # --------------------------------------------------------
+  # JOB 2 - SONARQUBE
+  #
+  # This is where code quality checks happen.
+  # --------------------------------------------------------
+  - job: SonarQube
+
+    displayName: SonarQube Analysis
+
+    steps:
+
+    - script: |
+        echo "Running SonarQube Scan..."
+      displayName: SonarQube Scan
+
+# ==========================================================
+# STAGE 3 - DEPLOY
+#
+# Runs only if Test stage succeeds.
+# ==========================================================
+- stage: Deploy
+
+  displayName: Deploy Application
+
+  dependsOn: Test
+
+  jobs:
+
+  # --------------------------------------------------------
+  # JOB 1 - DEPLOY TO DEVELOPMENT
+  # --------------------------------------------------------
+  - job: DeployDev
+
+    displayName: Deploy to Development
+
+    steps:
+
+    - script: |
+        echo "Deploying to Development..."
+        echo "helm upgrade --install sampleapp ..."
+      displayName: Deploy Dev
+
+  # --------------------------------------------------------
+  # JOB 2 - DEPLOY TO PRODUCTION
+  #
+  # In real projects this usually requires
+  # manual approval before running.
+  # --------------------------------------------------------
+  - job: DeployProd
+
+    displayName: Deploy to Production
+
+    steps:
+
+    - script: |
+        echo "Deploying to Production..."
+        echo "helm upgrade --install sampleapp ..."
+      displayName: Deploy Prod
