@@ -16,7 +16,7 @@ trigger:
 # Azure DevOps provides a temporary Ubuntu VM to run
 # this pipeline.
 #
-# Similar to a Jenkins Build Agent.
+# Similar to a Jenkins Build Agent..
 # ----------------------------------------------------------
 pool:
   name: Default
