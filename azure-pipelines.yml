@@ -9,7 +9,14 @@
 # to the "main" branch.
 # ----------------------------------------------------------
 trigger:
-- master
+  branches:
+    include:
+      - master
+
+  paths:
+    exclude:
+      - first-basic-pipeline.yml
+
 
 # ----------------------------------------------------------
 # Agent Pool
